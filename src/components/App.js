@@ -8,7 +8,7 @@ export default class App extends Component {
     super(props);
     this.state = {
       grid: [
-        [0, 0, 0, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
@@ -18,10 +18,13 @@ export default class App extends Component {
       ],
     };
   }
+
   render() {
     return (
       <div className="App">
-        <header>SnAkE</header>
+        <header>
+          <h1>SnAkE</h1>
+        </header>
         <main>
           <Grid grid={this.state.grid} />
         </main>
