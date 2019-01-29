@@ -36,38 +36,53 @@ export default class Grid extends Component {
     }
   }
 
-  moveSnake(direction) {
-    const [snakeQueue, ...snake] = this.state.snakePosition;
+  getNewSnakeHead(direction, snakePositions) {
+    const snakeHeadIndex = snakePositions.length - 1;
 
     if (direction === 'right') {
-      this.setState({
-        snakePosition: [
-          ...snake,
-          [snake[snake.length - 1][0], snake[snake.length - 1][1] + 1],
+      return [
+        ...snakePositions,
+        [
+          snakePositions[snakeHeadIndex][0],
+          snakePositions[snakeHeadIndex][1] + 1,
         ],
-      });
+      ];
     } else if (direction === 'left') {
-      this.setState({
-        snakePosition: [
-          ...snake,
-          [snake[snake.length - 1][0], snake[snake.length - 1][1] - 1],
+      return [
+        ...snakePositions,
+        [
+          snakePositions[snakeHeadIndex][0],
+          snakePositions[snakeHeadIndex][1] - 1,
         ],
-      });
+      ];
     } else if (direction === 'up') {
-      this.setState({
-        snakePosition: [
-          ...snake,
-          [snake[snake.length - 1][0] - 1, snake[snake.length - 1][1]],
+      return [
+        ...snakePositions,
+        [
+          snakePositions[snakeHeadIndex][0] - 1,
+          snakePositions[snakeHeadIndex][1],
         ],
-      });
+      ];
     } else if (direction === 'down') {
-      this.setState({
-        snakePosition: [
-          ...snake,
-          [snake[snake.length - 1][0] + 1, snake[snake.length - 1][1]],
+      return [
+        ...snakePositions,
+        [
+          snakePositions[snakeHeadIndex][0] + 1,
+          snakePositions[snakeHeadIndex][1],
         ],
-      });
+      ];
     }
+  }
+
+  moveSnake(direction) {
+    this.setState(prevState => {
+      return {
+        snakePosition: this.getNewSnakeHead(
+          direction,
+          prevState.snakePosition
+        ).slice(1),
+      };
+    });
   }
 
   isCellHasSnake(rowIndex, colIndex) {
