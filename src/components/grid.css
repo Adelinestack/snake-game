@@ -19,3 +19,9 @@
   background: rgb(103, 173, 56);
   border: 1px solid #fff;
 }
+.food {
+  width: 40px;
+  height: 40px;
+  background: rgb(201, 61, 61);
+  border: 1px solid #fff;
+}

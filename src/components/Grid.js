@@ -14,6 +14,7 @@ export default class Grid extends Component {
   }
 
   componentDidMount() {
+    this.showFood();
     this.grid.focus();
     this.gameStart();
   }
@@ -75,13 +76,24 @@ export default class Grid extends Component {
   }
 
   moveSnake(direction) {
-    this.setState(prevState => {
-      return {
-        snakePosition: this.getNewSnakeHead(
-          direction,
-          prevState.snakePosition
-        ).slice(1),
-      };
+    this.setState(prevState => ({
+      snakePosition: this.getNewSnakeHead(
+        direction,
+        prevState.snakePosition
+      ).slice(1),
+    }));
+  }
+
+  getRandomFoodPosition() {
+    return [
+      Math.floor(Math.random() * Math.floor(7)),
+      Math.floor(Math.random() * Math.floor(7)),
+    ];
+  }
+
+  showFood() {
+    this.setState({
+      foodPosition: this.getRandomFoodPosition(),
     });
   }
 
@@ -91,6 +103,17 @@ export default class Grid extends Component {
     );
     if (isSnake) {
       return 'snake';
+    }
+    return this.isCellHasFood(rowIndex, colIndex);
+  }
+
+  isCellHasFood(rowIndex, colIndex) {
+    const isFood =
+      this.state.foodPosition[1] === colIndex &&
+      this.state.foodPosition[0] === rowIndex;
+
+    if (isFood) {
+      return 'food';
     }
     return 'cell';
   }
