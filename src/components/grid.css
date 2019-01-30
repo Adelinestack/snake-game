@@ -4,24 +4,26 @@
   justify-content: space-around;
   align-items: center;
 }
+.grid:focus {
+  outline: none;
+}
 .grid-line {
   display: flex;
+  background: #000;
 }
 .cell {
   width: 40px;
   height: 40px;
   background: #000;
-  border: 1px solid #fff;
 }
 .snake {
   width: 40px;
   height: 40px;
   background: rgb(103, 173, 56);
-  border: 1px solid #fff;
 }
 .food {
   width: 40px;
   height: 40px;
   background: rgb(201, 61, 61);
-  border: 1px solid #fff;
+  border-radius: 40%;
 }

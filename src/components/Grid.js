@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import Cell from './Cell';
+import { directionOfKeyPressed, getRandomFoodPosition } from '../utils/Game';
+import { getNewSnakeHead, isEatingHimself, isEatingWall } from '../utils/Snake';
 import './grid.css';
 
 const DEFAULT_STATE = {
@@ -25,67 +27,21 @@ export default class Grid extends Component {
   }
 
   gameStart() {
-    setInterval(() => {
+    this.intervalId = setInterval(() => {
       this.moveSnake(this.state.direction);
     }, 300);
   }
 
   onKeyPress({ key }) {
-    if (key === 'ArrowUp') {
-      this.setState({ direction: 'up' });
-    } else if (key === 'ArrowDown') {
-      this.setState({ direction: 'down' });
-    } else if (key === 'ArrowRight') {
-      this.setState({ direction: 'right' });
-    } else if (key === 'ArrowLeft') {
-      this.setState({ direction: 'left' });
-    }
-  }
-
-  getNewSnakeHead(direction, snakePositions) {
-    const snakeHeadIndex = snakePositions.length - 1;
-
-    if (direction === 'right') {
-      return [
-        ...snakePositions,
-        [
-          snakePositions[snakeHeadIndex][0],
-          snakePositions[snakeHeadIndex][1] + 1,
-        ],
-      ];
-    } else if (direction === 'left') {
-      return [
-        ...snakePositions,
-        [
-          snakePositions[snakeHeadIndex][0],
-          snakePositions[snakeHeadIndex][1] - 1,
-        ],
-      ];
-    } else if (direction === 'up') {
-      return [
-        ...snakePositions,
-        [
-          snakePositions[snakeHeadIndex][0] - 1,
-          snakePositions[snakeHeadIndex][1],
-        ],
-      ];
-    } else if (direction === 'down') {
-      return [
-        ...snakePositions,
-        [
-          snakePositions[snakeHeadIndex][0] + 1,
-          snakePositions[snakeHeadIndex][1],
-        ],
-      ];
-    }
+    const direction = directionOfKeyPressed(key);
+    this.setState({ direction });
   }
 
   moveSnake(direction) {
     this.setState(prevState => ({
-      snakePosition: this.getNewSnakeHead(
-        direction,
-        prevState.snakePosition
-      ).slice(prevState.snakeSize === prevState.snakePosition.length ? 1 : 0),
+      snakePosition: getNewSnakeHead(direction, prevState.snakePosition).slice(
+        prevState.snakeSize === prevState.snakePosition.length ? 1 : 0
+      ),
     }));
     this.setState(prevState => {
       const snakeHeadPosition =
@@ -101,63 +57,13 @@ export default class Grid extends Component {
         };
       }
     });
-    this.setState(this.isEatingHimself);
-    this.setState(this.isEatingWall);
-  }
-
-  isEatingHimself(prevState) {
-    const snakeHeadPosition =
-      prevState.snakePosition[prevState.snakePosition.length - 1];
-    const snakeBody = prevState.snakePosition.slice(
-      0,
-      prevState.snakePosition.length - 2
-    );
-    const isEatingSnake = snakeBody.find(
-      position =>
-        position[0] === snakeHeadPosition[0] &&
-        position[1] === snakeHeadPosition[1]
-    );
-    if (isEatingSnake) {
-      return {
-        gameState: 'end',
-      };
-    }
-    return null;
-  }
-
-  isEatingWall(prevState) {
-    const snakeHeadPosition =
-      prevState.snakePosition[prevState.snakePosition.length - 1];
-    const gridLimits = this.props.grid.length;
-    const snakeHeadLimits =
-      snakeHeadPosition[0] < 0 ||
-      snakeHeadPosition[0] > gridLimits ||
-      snakeHeadPosition[1] < 0 ||
-      snakeHeadPosition[1] > gridLimits;
-    if (snakeHeadLimits) {
-      return { gameState: 'end' };
-    }
-    return null;
-  }
-
-  getRandomFoodPosition() {
-    const randomPositionsFood = [
-      Math.floor(Math.random() * Math.floor(7)),
-      Math.floor(Math.random() * Math.floor(7)),
-    ];
-    const isSnakePositions = this.state.snakePosition.find(
-      position =>
-        position[0] === randomPositionsFood[0] &&
-        position[1] === randomPositionsFood[1]
-    );
-    return isSnakePositions
-      ? this.getRandomFoodPosition()
-      : randomPositionsFood;
+    this.setState(isEatingHimself);
+    this.setState(isEatingWall);
   }
 
   showFood() {
     this.setState({
-      foodPosition: this.getRandomFoodPosition(),
+      foodPosition: getRandomFoodPosition(this.state.snakePosition),
     });
   }
 
@@ -183,8 +89,11 @@ export default class Grid extends Component {
   }
 
   restart() {
+    clearInterval(this.intervalId);
     this.setState(DEFAULT_STATE);
     this.showFood();
+    this.grid.focus();
+    this.gameStart();
   }
 
   render() {
@@ -196,26 +105,27 @@ export default class Grid extends Component {
           value={this.isCellHasSnake(rowIndex, colIndex)}
           rowIndex={rowIndex}
           colIndex={colIndex}
+          key={`${colIndex}`}
         />
       ));
-      return <div className="grid-line">{cols}</div>;
+      return (
+        <div className="grid-line" key={`${rowIndex}`}>
+          {cols}
+        </div>
+      );
     });
 
-    if (gameState === 'play') {
-      return (
+    return (
+      <div>
         <div
           className="grid"
           ref={grid => (this.grid = grid)}
           tabIndex="-1"
           onKeyDown={this.onKeyPress.bind(this)}
         >
-          {rows}
+          {gameState === 'play' && rows}
         </div>
-      );
-    }
-    return (
-      <div>
-        <div>Game Over</div>
+        {gameState === 'end' && <div>Game Over</div>}
         <div>You ate {foodEaten} apples</div>
         <div>
           <button onClick={this.restart.bind(this)}>Restart</button>
