@@ -9,6 +9,7 @@ export default class Grid extends Component {
     this.state = {
       direction: 'right',
       snakePosition: [[0, 0]],
+      snakeSize: 1,
       foodPosition: [0, 0],
     };
   }
@@ -80,8 +81,19 @@ export default class Grid extends Component {
       snakePosition: this.getNewSnakeHead(
         direction,
         prevState.snakePosition
-      ).slice(1),
+      ).slice(prevState.snakeSize === prevState.snakePosition.length ? 1 : 0),
     }));
+    this.setState(prevState => {
+      const snakeHeadPosition =
+        prevState.snakePosition[prevState.snakePosition.length - 1];
+      const isEatingFood =
+        this.isCellHasFood(snakeHeadPosition[0], snakeHeadPosition[1]) ===
+        'food';
+      if (isEatingFood) {
+        this.showFood();
+        return { snakeSize: prevState.snakeSize + 1 };
+      }
+    });
   }
 
   getRandomFoodPosition() {
