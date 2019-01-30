@@ -11,6 +11,7 @@ export default class Grid extends Component {
       snakePosition: [[0, 0]],
       snakeSize: 1,
       foodPosition: [0, 0],
+      gameState: 'play',
     };
   }
 
@@ -94,6 +95,27 @@ export default class Grid extends Component {
         return { snakeSize: prevState.snakeSize + 1 };
       }
     });
+    this.setState(this.isEatingHimself);
+  }
+
+  isEatingHimself(prevState) {
+    const snakeHeadPosition =
+      prevState.snakePosition[prevState.snakePosition.length - 1];
+    const snakeBody = prevState.snakePosition.slice(
+      0,
+      prevState.snakePosition.length - 2
+    );
+    const isEating = snakeBody.find(
+      position =>
+        position[0] === snakeHeadPosition[0] &&
+        position[1] === snakeHeadPosition[1]
+    );
+    if (isEating) {
+      return {
+        gameState: 'end',
+      };
+    }
+    return null;
   }
 
   getRandomFoodPosition() {
@@ -151,15 +173,18 @@ export default class Grid extends Component {
       return <div className="grid-line">{cols}</div>;
     });
 
-    return (
-      <div
-        className="grid"
-        ref={grid => (this.grid = grid)}
-        tabIndex="-1"
-        onKeyDown={this.onKeyPress.bind(this)}
-      >
-        {rows}
-      </div>
-    );
+    if (this.state.gameState === 'play') {
+      return (
+        <div
+          className="grid"
+          ref={grid => (this.grid = grid)}
+          tabIndex="-1"
+          onKeyDown={this.onKeyPress.bind(this)}
+        >
+          {rows}
+        </div>
+      );
+    }
+    return <div>Game Over</div>;
   }
 }
