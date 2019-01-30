@@ -8,7 +8,7 @@ export default class Grid extends Component {
     this.grid = null;
     this.state = {
       direction: 'right',
-      snakePosition: [[0, 0], [0, 1], [0, 2]],
+      snakePosition: [[0, 0]],
       foodPosition: [0, 0],
     };
   }
@@ -85,10 +85,18 @@ export default class Grid extends Component {
   }
 
   getRandomFoodPosition() {
-    return [
+    const randomPositionsFood = [
       Math.floor(Math.random() * Math.floor(7)),
       Math.floor(Math.random() * Math.floor(7)),
     ];
+    const isSnakePositions = this.state.snakePosition.find(
+      position =>
+        position[0] === randomPositionsFood[0] &&
+        position[1] === randomPositionsFood[1]
+    );
+    return isSnakePositions
+      ? this.getRandomFoodPosition()
+      : randomPositionsFood;
   }
 
   showFood() {
